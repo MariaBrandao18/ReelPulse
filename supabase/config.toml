@@ -1,0 +1,13 @@
+project_id = "tyihdeyanqaehtrqloba"
+
+[functions.add-reel-webhook]
+verify_jwt = false
+
+[functions.cache_image_to_storage]
+verify_jwt = false
+
+[functions.reels-sync-webhook]
+verify_jwt = false
+
+[functions.verify-instagram-account]
+verify_jwt = false
