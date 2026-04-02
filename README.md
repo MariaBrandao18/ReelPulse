@@ -1,6 +1,21 @@
 # ReelPulse
 
-Plataforma de analytics para Instagram Reels. Acompanhe visualizações, curtidas, comentários e plays dos seus reels em um único painel, com histórico diário e indicadores de crescimento reais.
+> **Analytics de Instagram Reels para agências e criadores de conteúdo.**
+
+Você gerencia contas no Instagram e precisa provar resultado para o seu cliente — mas fica abrindo o app, copiando número por número, montando planilha na mão?
+
+O **ReelPulse** resolve isso. É uma plataforma que centraliza todas as métricas dos seus Reels em um único painel: visualizações, curtidas, comentários e plays, atualizados automaticamente todo dia, com histórico de crescimento e gráficos prontos para apresentar.
+
+**Para quem é:**
+- Agências de social media que gerenciam múltiplos clientes
+- Gestores de tráfego que precisam reportar resultado de conteúdo orgânico
+- Criadores de conteúdo que querem entender o que performa melhor
+
+**O que você ganha:**
+- Chega de planilha manual — os dados chegam sozinhos todo dia
+- Visão clara de quais reels estão crescendo e quais estagnaram
+- Um painel por conta de Instagram, tudo separado e organizado
+- Histórico diário para mostrar evolução ao longo do tempo
 
 ---
 
