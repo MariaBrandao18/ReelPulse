@@ -1,0 +1,250 @@
+{
+  "name": "Projeto Brandão SCRAP",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "https://api.scrapecreators.com/v1/instagram/post",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "url",
+              "value": "={{ $json.url }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "API-DA-SUA-CONTA"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        336,
+        96
+      ],
+      "id": "c2f70a52-80e3-4f6e-9389-07d8fb84abc2",
+      "name": "Receber a URL / Reels"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "SEU-SPREADSHEET-ID",
+          "mode": "list",
+          "cachedResultName": "ReelPulse",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/SEU-SPREADSHEET-ID/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Página1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/SEU-SPREADSHEET-ID/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "posted_at": "={{ new Date($json.data.xdt_shortcode_media.edge_media_to_caption.edges[0].node.created_at * 1000).toLocaleDateString('pt-BR') }}",
+            "instagram_external_id": "={{ $json.data.xdt_shortcode_media.id }}",
+            "video_url": "={{ $('When Executed by Another Workflow').item.json.url }}",
+            "views_count": "={{ $json.data.xdt_shortcode_media.video_view_count }}",
+            "plays_count": "={{ $json.data.xdt_shortcode_media.video_play_count }}",
+            "comments_count": "={{ $json.data.xdt_shortcode_media.edge_media_to_parent_comment.count }}",
+            "likes_count": "={{ $json.data.xdt_shortcode_media.edge_media_preview_like.count }}",
+            "thumbnail_url": "={{ $json.data.xdt_shortcode_media.display_resources[2].src }}"
+          },
+          "matchingColumns": [
+            "video_url"
+          ],
+          "schema": [
+            {
+              "id": "instagram_external_id",
+              "displayName": "instagram_external_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "video_url",
+              "displayName": "video_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "likes_count",
+              "displayName": "likes_count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "views_count",
+              "displayName": "views_count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "plays_count",
+              "displayName": "plays_count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "comments_count",
+              "displayName": "comments_count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "thumbnail_url",
+              "displayName": "thumbnail_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "posted_at",
+              "displayName": "posted_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        592,
+        96
+      ],
+      "id": "89ab2caa-afeb-4bab-bf23-39abf61867e0",
+      "name": "Append or update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "aBw34yMl7qJhTD8G",
+          "name": "Google Sheets Brandão account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## SCRAP\n- Scrap inicial quando a url é salva na primeira vez\n- API de scrap: [ScrapeCreators](https://scrapecreators.com/)",
+        "height": 400,
+        "width": 816,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        16,
+        -96
+      ],
+      "typeVersion": 1,
+      "id": "c982ef7e-cb8e-4789-a70c-8c2cf1bd636b",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "url"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        96,
+        96
+      ],
+      "id": "4d0435d4-9ac3-4452-b4e9-19f8608c4c9e",
+      "name": "When Executed by Another Workflow"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Receber a URL / Reels": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Receber a URL / Reels",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "06dd733c-655e-4f5b-bcd0-65fed33a7d94",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "SEU-INSTANCE-ID"
+  },
+  "id": "ORqMo1d017Uoct5x",
+  "tags": [
+    {
+      "updatedAt": "2026-01-05T13:30:50.787Z",
+      "createdAt": "2026-01-05T13:30:42.686Z",
+      "id": "quozb3CnXqcSOoa3",
+      "name": "ReelPulseWorkflow"
+    }
+  ]
+}

@@ -1,0 +1,443 @@
+{
+  "name": "Projeto Brandão UPDATE",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -272,
+        48
+      ],
+      "id": "826a81d2-948d-4b37-b8e7-4b3437e87f56",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "content": "## UPDATE\n- Workflow responsável por toda a coleta de dados dos links salvos\n- API de scrap: [ScrapeCreators](https://scrapecreators.com/)\n- Inserção dos dados na Planilha / Supabase\n\n- \"GET Urls\" e \"POST métricas\" são endpoints feitos pelas Edge Functions do Supabase\n ",
+        "height": 560,
+        "width": 1744,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -384,
+        -352
+      ],
+      "typeVersion": 1,
+      "id": "a76b17af-f183-4208-b2b5-6c4b0eaa6b3f",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "url": "https://SEU-PROJETO.supabase.co/functions/v1/reels-sync-webhook",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-CRON-SECRET",
+              "value": "VALOR-DEFINIDO-NO-SECRET"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -32,
+        -144
+      ],
+      "id": "204e4fe5-a7ac-476e-b568-a14f85cbe3f6",
+      "name": "GET Urls"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://SEU-PROJETO.supabase.co/functions/v1/reels-sync-webhook",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-CRON-SECRET",
+              "value": "VALOR-DEFINIDO-NO-SECRET"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "video_reel_id",
+              "value": "={{ $json.uuid }}"
+            },
+            {
+              "name": "views",
+              "value": "={{ $json.views_count }}"
+            },
+            {
+              "name": "likes",
+              "value": "={{ $json.likes_count }}"
+            },
+            {
+              "name": "comments",
+              "value": "={{ $json.comments_count }}"
+            },
+            {
+              "name": "plays",
+              "value": "={{ $json.plays_count }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1184,
+        -128
+      ],
+      "id": "bd9dce43-1e86-4c9c-bb8e-1aeba2ae7f0f",
+      "name": "POST métricas"
+    },
+    {
+      "parameters": {
+        "url": "https://api.scrapecreators.com/v1/instagram/post",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "url",
+              "value": "={{ $json.video_url }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "API-DA-SUA-CONTA"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        672,
+        -128
+      ],
+      "id": "a8fb5d05-2936-4fd8-8e6a-4f3896e89af1",
+      "name": "Receber a URL / Reels"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        400,
+        -144
+      ],
+      "id": "652493cf-83ca-4f23-a6c6-c0a836cd33df",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "reels",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        176,
+        -144
+      ],
+      "id": "f2c2f5fe-6b76-4add-b598-952f47dae418",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "SEU-SPREADSHEET-ID",
+          "mode": "list",
+          "cachedResultName": "ReelPulse",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/SEU-SPREADSHEET-ID/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1557715876,
+          "mode": "list",
+          "cachedResultName": "Snapshot",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/SEU-SPREADSHEET-ID/edit#gid=1557715876"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "posted_at": "={{ new Date($json.data.xdt_shortcode_media.edge_media_to_caption.edges[0].node.created_at * 1000).toLocaleDateString('pt-BR') }}",
+            "instagram_external_id": "={{ $json.data.xdt_shortcode_media.id }}",
+            "views_count": "={{ $json.data.xdt_shortcode_media.video_view_count }}",
+            "plays_count": "={{ $json.data.xdt_shortcode_media.video_play_count }}",
+            "comments_count": "={{ $json.data.xdt_shortcode_media.edge_media_to_parent_comment.count }}",
+            "likes_count": "={{ $json.data.xdt_shortcode_media.edge_media_preview_like.count }}",
+            "cron": "={{ $now.toISO() }}",
+            "video_url": "={{ $('Loop Over Items').item.json.video_url }}",
+            "uuid": "={{ $('Loop Over Items').item.json.id }}"
+          },
+          "matchingColumns": [
+            "video_url"
+          ],
+          "schema": [
+            {
+              "id": "instagram_external_id",
+              "displayName": "instagram_external_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "video_url",
+              "displayName": "video_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "likes_count",
+              "displayName": "likes_count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "views_count",
+              "displayName": "views_count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "plays_count",
+              "displayName": "plays_count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "comments_count",
+              "displayName": "comments_count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "posted_at",
+              "displayName": "posted_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "cron",
+              "displayName": "cron",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "uuid",
+              "displayName": "uuid",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        928,
+        -128
+      ],
+      "id": "a584d62d-255c-4a80-9f39-84bbf8a03630",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "aBw34yMl7qJhTD8G",
+          "name": "Google Sheets Brandão account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -272,
+        -144
+      ],
+      "id": "47593438-36dd-4d6f-b208-41268582b5bf",
+      "name": "Schedule Trigger"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "GET Urls",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Receber a URL / Reels": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Urls": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Receber a URL / Reels",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "POST métricas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "POST métricas": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "GET Urls",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "ecb4651c-1566-402e-b59a-6615eb1d25f7",
+  "meta": {
+    "instanceId": "SEU-INSTANCE-ID"
+  },
+  "id": "WAOlcIXnNq92MDR0",
+  "tags": [
+    {
+      "updatedAt": "2026-01-05T13:30:50.787Z",
+      "createdAt": "2026-01-05T13:30:42.686Z",
+      "id": "quozb3CnXqcSOoa3",
+      "name": "ReelPulseWorkflow"
+    }
+  ]
+}
